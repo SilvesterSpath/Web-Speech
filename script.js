@@ -69,6 +69,77 @@ function createBox(item) {
   <p class="info">${text}</p>`;
 
   // @todo - speak event
+  box.addEventListener('click', () => {
+    setTextMessage(text);
+    speakText();
+
+    // Add active effect
+    box.classList.add('active');
+    setTimeout(() => box.classList.remove('active'), 800);
+  });
 
   main.appendChild(box);
 }
+
+// Init speach synth
+const message = new SpeechSynthesisUtterance();
+
+// Set text message
+function setTextMessage(text) {
+  message.text = text;
+}
+
+// Speak text
+function speakText() {
+  speechSynthesis.speak(message);
+}
+
+// Store voices
+let voices = [];
+
+function getVoices() {
+  voices = speechSynthesis.getVoices();
+  console.log(voices);
+
+  voices.forEach((i) => {
+    const option = document.createElement('option');
+
+    option.value = i.name;
+    option.innerText = `${i.name} ${i.lang}`;
+
+    voicesSelect.appendChild(option);
+  });
+}
+
+// Voices changed
+speechSynthesis.addEventListener('voiceschanged', getVoices);
+
+// Toggle textbox
+toggleBtn.addEventListener('click', () =>
+  document.getElementById('text-box').classList.add('show')
+);
+
+// Close button
+closeBtn.addEventListener('click', () =>
+  document.getElementById('text-box').classList.remove('show')
+);
+
+// Set voice
+function setVoice(e) {
+  message.voice = voices.find((i) => i.name === e.target.value);
+}
+
+// Change voice
+voicesSelect.addEventListener('change', setVoice);
+
+// Read text
+function readText() {
+  const text = textArea.value;
+  setTextMessage(text);
+  speakText();
+}
+
+// Read text button
+readBtn.addEventListener('click', readText);
+
+getVoices();
